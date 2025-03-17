@@ -1,0 +1,5 @@
+	reciprocity_assortativity	value
+0	reciprocity	0.0
+1	degree	-0.061589503579438015
+2	lfc_24hpi	0.0
+3	padj_24hpi	0.0

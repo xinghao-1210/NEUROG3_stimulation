@@ -1,0 +1,5 @@
+	genes
+0	['RFX6', 'NEUROG3', 'ATOH8', 'SMAD9', 'MAFA', 'PROX1', 'HEYL']
+1	['NEUROD1', 'DACH1', 'NKX2-2', 'PAX4', 'INSM1', 'LTF']
+2	['ST18', 'SOX4', 'MYT1', 'HES6', 'NEUROD2']
+3	['TP73', 'LMX1B', 'NHLH1', 'GRHL3']

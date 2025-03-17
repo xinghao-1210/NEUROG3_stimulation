@@ -1,0 +1,32 @@
+# normGene: vsd normalized gene x sample matrix, HEADER of first column empty
+# genesforTFA: ALL genes from RNA-seq across samples, also as background set
+# targetGene: Differentially expressed genes from RNA-seq across samples
+# potRegs: Differentially expressed genes from RNA-seq across samples INTERSECT with motif2gene list
+
+construct_atac_prior
+ChIP_integrate
+potReg need to be TFs from priors intersected with RNA-seq expression data
+
+P(priors): ATAC/ChIP/RNA prior matrix with priorConstruct
+X(geneExpression): RNA-seq vst normalization
+A-TF(potRegs_names): selected TFs expressed in RNA-seq (default: same as core_TFs)
+genesForTFA: RNA-seq vst normalization (default:  same as RNA-seq vst normalization)
+X-fit(targetGene_Names): deg/interested genes
+
+0 workflow-tfa: determine lambda range to get instability=0.05
+1. r2Pred: determine meanEdgesPerGene
+2.1 workflow-tfa: tfaOpt='' model with TFA, with determined meanEdgesPerGene
+2.2 workflow-mRNA: tfaOpt='_TFmRNA' model with mRNA, with determined meanEdgesPerGene
+3. combine: combine TFA and mRNA models by ranked TF-gene
+4. filter_by_pcorr (python 2.7 bash): modify inputDir and inFileNames
+					-> Threshhold positive and negative edges in the TRN
+5. genesetConstruct (python 3): 
+					-> Make geneSet file from DESeq2 DEGs **geneset output 
+						FILE NAME cannot contain "_"
+6. tfTargets_GSEA (python 2.7 bash): modify geneSetAbbrev, geneSetFile, backgroundGeneFile and networkFiles
+7. core: deg/interested genes on specific condition/time point
+8. aveGeneExpMatrix_subset_4viz: group samples based on RNA-seq condition for heatmap fig in next step
+9. tfModules: TF-TF module heat map and generate file for core network
+10. tfTargets_GSEA_loop: TF targets GSEA
+11. visGSEAenrich_heatmaps_comb : TF targets GSEA heatmap
+12. jp_gene_viz_TF_module.ipynb (Jupiter notebook on py2): TF-TF module network visualization

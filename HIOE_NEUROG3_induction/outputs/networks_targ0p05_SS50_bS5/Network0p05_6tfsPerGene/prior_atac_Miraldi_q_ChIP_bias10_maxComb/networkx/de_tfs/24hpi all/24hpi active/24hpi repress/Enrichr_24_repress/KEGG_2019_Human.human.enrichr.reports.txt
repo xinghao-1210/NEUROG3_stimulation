@@ -1,0 +1,3 @@
+Gene_set	Term	Overlap	P-value	Adjusted P-value	Old P-value	Old Adjusted P-value	Odds Ratio	Combined Score	Genes
+KEGG_2019_Human	Maturity onset diabetes of the young	1/26	0.011641548186931168	0.020514490407793847	0	0	99.83	444.56044425456116	MAFA
+KEGG_2019_Human	Type II diabetes mellitus	1/46	0.020514490407793847	0.020514490407793847	0	0	55.405555555555566	215.34055050751044	MAFA
