@@ -1,4 +1,4 @@
-# infTRN_lassoStARS
+# InfTRN_LassoStARS
 
 This repository contains a workflow for inference of transcriptional regulatory networks (TRNs) from gene expression data and prior information, as described in:
 
