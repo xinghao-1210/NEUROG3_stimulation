@@ -18,18 +18,18 @@ currDir = '';
 addpath(fullfile(currDir,'customMatlabFxns'))
 
 %% max-combined Th17 TF mRNA & TFA TRN
-cond_time=72
+cond_time = 8
 outFileBase = sprintf('pancreas_NEUROG3_induction/outputs/networks_targ0p05_SS50_bS5/Network0p05_10tfsPerGene/prior_atac_Miraldi_q_ChIP_bias10_maxComb/GSEA/prior_atac_Miraldi_q_ChIP_bias10_maxComb_cut01_%dhpiSet_Praw0p1_dir_wCut0p0_minSet5',cond_time);
 titleBit = sprintf('max-combined pancreas_NEUROG3_8h %dhpi TF mRNA & TFA TRN',cond_time);
 outDir0 = sprintf('pancreas_NEUROG3_induction/outputs/networks_targ0p05_SS50_bS5/Network0p05_10tfsPerGene/prior_atac_Miraldi_q_ChIP_bias10_maxComb/%dhpi_Cores',cond_time);
 
 potRegList = 'pancreas_NEUROG3_induction/inputs/targRegLists/potRegs_names.txt';
-topN = 30;
+topN = 50;
 
-padjMin = 1E-120; % max for adjusted p-value
+padjMin = 1e-50; % max for adjusted p-value
 setInfIn = sprintf('%dhpiset_fdr100',cond_time);   % for input set
-FDR_cutoff = .01;   % cutoff for inclusion of enrichment in heatmap
-setInf = [sprintf('%dhpiSets_fdr',cond_time) num2str(100*FDR_cutoff) '_top' num2str(topN)];     % for output set
+FDR_cutoff = 1e-5;   % cutoff for inclusion of enrichment in heatmap
+setInf = [sprintf('%dhpiSets_fdr',cond_time) num2str(FDR_cutoff) '_top' num2str(topN)];     % for output set
 
 prevTh17tfInfs = {'p','pancreas_NEUROG3_induction/inputs/geneSets/prevgenes.txt'};
 
@@ -163,7 +163,7 @@ alphTfs = flipud(alphTfs);
 alphOrder = flipud(alphOrder);
 
 %% alphabetize TFs
-outBit = sprintf('_%dhpipromTFs_padjsORD_alph',cond_time);
+outBit = '_promTFs_padjsORD_alph';
 currFig = [outDir outBit];
 if makeTextOut
     fout = fopen([currFig '.txt'],'w');
@@ -188,11 +188,9 @@ grid on, grid minor
 
 ax = axis();
 axis([ax(1:2) 0 topN+1])
-
 currFig = [outDir outBit];
-saveas(gcf,currFig,'fig')
+saveas(gcf,currFig,'fig') % replace . with - as . causes fig save error
 pause
 save2pdf(currFig,gcf,300)
 disp('Completed')
 disp(currFig)
-

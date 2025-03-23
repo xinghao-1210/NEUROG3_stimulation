@@ -45,7 +45,7 @@ end
 
 %% 2. Given a prior of TF-gene interactions, estimate transcription factor 
 % activities (TFAs) using prior-based TFA and TF mRNA levels
-priorName = 'prior_atac_Miraldi_q_ChIP';
+priorName = 'prior_atac_Miraldi_q_ChIP_x10';
 priorFile = ['HIOE_NEUROG3_induction/inputs/priors/' priorName '.tsv']; % Th17 ATAC-seq prior
 edgeSS = 50;
 minTargets = 3;
@@ -72,7 +72,7 @@ loInfo = {'HIOE_NEUROG3_induction/inputs/leaveOutLists/0-24hpi.txt','_0-24hpi';
     'HIOE_NEUROG3_induction/inputs/leaveOutLists/100-72hpi.txt','_100-72hpi';
     'HIOE_NEUROG3_induction/inputs/leaveOutLists/100-96hpi.txt','_100-96hpi';};
 
-lambdaBiases = [1 .5 .25 .1]; % correspond to "no,moderate, and strong prior reinforcement
+lambdaBiases = [.5 .25 .1]; % correspond to "no,moderate, and strong prior reinforcement
 tfaOpts = {'','_TFmRNA'}; % the two TFA options
 
 totLos = size(loInfo,1);
@@ -81,7 +81,7 @@ totTfas = length(tfaOpts);
 %% parameters for Step 3 (calculating network instabilities w/ bStARS)
 totSS = 50;
 targetInstability = .05;
-lambdaMin = 1e-5;
+lambdaMin = 1e-7;
 lambdaMax = 1;
 extensionLimit = 1;
 totLogLambdaSteps = 25; % will have this many steps per log10 within bStARS lambda range

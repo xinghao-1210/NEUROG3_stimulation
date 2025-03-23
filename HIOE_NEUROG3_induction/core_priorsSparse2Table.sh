@@ -13,9 +13,9 @@ scriptHome="../priorConstruction"
 cond_list=(24 48 72 96)
 for cond_time in ${cond_list[@]}
 do
-	inputDir="outputs/networks_targ0p05_SS50_bS5/Network0p05_6tfsPerGene/prior_atac_Miraldi_q_ChIP_bias10_maxComb/${cond_time}hpi_Cores"
+	inputDir="outputs/networks_targ0p05_SS50_bS5/Network0p05_6tfsPerGene/prior_atac_Miraldi_q_ChIP_x10_bias10_maxComb/${cond_time}hpi_Cores"
 
-	declare -a inFileNames=("Core_prior_atac_Miraldi_q_ChIP_bias10_maxComb_fdr5_HIOE_NEUROG3_${cond_time}hpiSet_All_sp.tsv" "Core_prior_atac_Miraldi_q_ChIP_bias10_maxComb_fdr5_HIOE_NEUROG3_${cond_time}hpiSet_DE_sp.tsv")
+	declare -a inFileNames=("Core_prior_atac_Miraldi_q_ChIP_x10_bias10_maxComb_fdr5_HIOE_NEUROG3_${cond_time}hpiSet_All_sp.tsv" "Core_prior_atac_Miraldi_q_ChIP_x10_bias10_maxComb_fdr5_HIOE_NEUROG3_${cond_time}hpiSet_DE_sp.tsv")
 	outputDirBase=${inputDir}
 # END INPUTS
 

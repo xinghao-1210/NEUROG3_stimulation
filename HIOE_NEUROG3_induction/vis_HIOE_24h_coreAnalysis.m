@@ -18,15 +18,15 @@ currDir = '';
 addpath(fullfile(currDir,'customMatlabFxns'))
 
 %% max-combined Th17 TF mRNA & TFA TRN
-cond_time = 24
-outFileBase = sprintf('HIOE_NEUROG3_induction/outputs/networks_targ0p05_SS50_bS5/Network0p05_6tfsPerGene/prior_atac_Miraldi_q_ChIP_bias10_maxComb/GSEA/prior_atac_Miraldi_q_ChIP_bias10_maxComb_cut01_%dhpiSet_Praw0p1_dir_wCut0p0_minSet5',cond_time);
+cond_time = 96
+outFileBase = sprintf('HIOE_NEUROG3_induction/outputs/networks_targ0p05_SS50_bS5/Network0p05_6tfsPerGene/prior_atac_Miraldi_q_ChIP_x10_bias10_maxComb/GSEA/prior_atac_Miraldi_q_ChIP_x10_bias10_maxComb_cut01_%dhpiSet_Praw0p1_dir_wCut0p0_minSet5',cond_time);
 titleBit = sprintf('max-combined HIOE_NEUROG3_24h %dhpi TF mRNA & TFA TRN',cond_time);
-outDir0 = sprintf('HIOE_NEUROG3_induction/outputs/networks_targ0p05_SS50_bS5/Network0p05_6tfsPerGene/prior_atac_Miraldi_q_ChIP_bias10_maxComb/%dhpi_Cores',cond_time);
+outDir0 = sprintf('HIOE_NEUROG3_induction/outputs/networks_targ0p05_SS50_bS5/Network0p05_6tfsPerGene/prior_atac_Miraldi_q_ChIP_x10_bias10_maxComb/%dhpi_Cores',cond_time);
 
 potRegList = 'HIOE_NEUROG3_induction/inputs/targRegLists/potRegs_names.txt';
 topN = 50;
 
-padjMin = 1e-50; % max for adjusted p-value
+padjMin = 1e-100; % max for adjusted p-value
 setInfIn = sprintf('%dhpiset_fdr100',cond_time);   % for input set
 FDR_cutoff = 1e-5;   % cutoff for inclusion of enrichment in heatmap
 setInf = [sprintf('%dhpiSets_fdr',cond_time) num2str(FDR_cutoff) '_top' num2str(topN)];     % for output set

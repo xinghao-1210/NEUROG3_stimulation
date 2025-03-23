@@ -1,0 +1,5 @@
+	edgelist/de//graphml_8_None_weighted_edgelist.txt	edgelist/de//graphml_48_None_weighted_edgelist.txt	edgelist/de//graphml_72_None_weighted_edgelist.txt	edgelist/de//graphml_24_None_weighted_edgelist.txt
+edgelist/de//graphml_8_None_weighted_edgelist.txt	0	0.403024526822	0.577718195923	0.594483272873
+edgelist/de//graphml_48_None_weighted_edgelist.txt	0.403024526822	0	0.335615151103	0.714800397287
+edgelist/de//graphml_72_None_weighted_edgelist.txt	0.577718195923	0.335615151103	0	0.941204083028
+edgelist/de//graphml_24_None_weighted_edgelist.txt	0.594483272873	0.714800397287	0.941204083028	0

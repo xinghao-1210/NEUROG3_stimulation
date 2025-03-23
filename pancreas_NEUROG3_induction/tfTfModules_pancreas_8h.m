@@ -33,17 +33,27 @@ addpath(fullfile(matlabDir,'customMatlabFxns'))
 
 %% Inputs from other workflows:
 %% Network
+% set cond_time for specific condition
+cond_time = 8;
+
+% "All" TFs with enriched targets in DE genes + all its targets
+% "DE" TFs with enriched targets in DE genes + only its targets that are DE genes
+% "All_ChIP" timepoint ChIP integrated (not all timepoint) TFs with enriched targets in DE genes + all its targets
+% "DE_ChIP" timepoint ChIP integrated (not all timepoint) TFs with enriched targets in DE genes + only its targets that are DE genes
+% "DE_id_subset" If existed, TFs with enriched targets in DE genes + only its targets that are DE genes and in gene set of interest
+cond_gene = 'All';
+
 % Input network below combines TF mRNA and TFA models (via
 %   combine_Th17_TRNs.m) and was filtered so that |partial corr| between TFs
 %   and target genes is > .01 (via filter_Th17_TRNs_by_pcorr.sh)
 % Network should be in tab-delimited "table" format for step 1; columns 
 %   correspond to TF regulators, rows correspond to target genes,
 %   and values correspond to signed interactions
-inputNetwork = 'pancreas_NEUROG3_induction/outputs/networks_targ0p05_SS50_bS5/Network0p05_10tfsPerGene/prior_atac_Miraldi_q_ChIP_bias10_maxComb/prior_atac_Miraldi_q_ChIP_bias10_maxComb_cut01.tsv';
+inputNetwork = sprintf('pancreas_NEUROG3_induction/outputs/networks_targ0p05_SS50_bS5/Network0p05_10tfsPerGene/prior_atac_Miraldi_q_ChIP_bias10_maxComb/%dhpi_Cores/Core_prior_atac_Miraldi_q_ChIP_bias10_maxComb_fdr5_Pancreas_NEUROG3_%dhpiSet_%s.tsv',cond_time,cond_time,cond_gene);
 % "Sparse" network format is required for step 5 (network visualization of
 %   TF-TF modules, col 1 = TF, col 2 = target gene, col 3 = signed weight
 %   of interaction, additional columns are optional
-inputNetworkSparse = 'pancreas_NEUROG3_induction/outputs/networks_targ0p05_SS50_bS5/Network0p05_10tfsPerGene/prior_atac_Miraldi_q_ChIP_bias10_maxComb/prior_atac_Miraldi_q_ChIP_bias10_maxComb_cut01_sp.tsv';
+inputNetworkSparse = sprintf('pancreas_NEUROG3_induction/outputs/networks_targ0p05_SS50_bS5/Network0p05_10tfsPerGene/prior_atac_Miraldi_q_ChIP_bias10_maxComb/%dhpi_Cores/Core_prior_atac_Miraldi_q_ChIP_bias10_maxComb_fdr5_Pancreas_NEUROG3_%dhpiSet_%s_sp.tsv',cond_time,cond_time,cond_gene);
 %% (Optional) a subset of averaged gene expression coditions, used to
 % visual TF mRNA expression in step 3. See aveGeneExpMatrix_subset_4viz.m
 % TO OMIT: set aveGeneExprMat = ''
@@ -57,8 +67,6 @@ aveGeneExprMat = 'pancreas_NEUROG3_induction/outputs/processedGeneExpTFA/geneExp
 % step 3
 % TO OMIT: set annotations = ''
 
-% set cond_time for specific condition
-cond_time = 72;
 annotations = {... N x 3 cell, were each row corresponds to an enrichment analysis:
     ...col 1: sign of enriched regulatory edges (1 --> positive, -1 --> inhibition)
     ...col 2: nickname for enrichment anlaysis (goes in title & figure file)
@@ -66,18 +74,18 @@ annotations = {... N x 3 cell, were each row corresponds to an enrichment analys
     ...col 4: cell with the desired ordered of set annotations -- if desired
     ...   order is unknown, this can be left as an empty string
     1,'posEdgeCore',...
-    sprintf('pancreas_NEUROG3_induction/outputs/networks_targ0p05_SS50_bS5/Network0p05_10tfsPerGene/prior_atac_Miraldi_q_ChIP_bias10_maxComb/GSEA/prior_atac_Miraldi_q_ChIP_bias10_maxComb_cut01_%dhpiSet_Praw0p1_dir_wCut0p0_minSet5/%dhpiSet_praw10_up_adjp.txt',cond_time,cond_time),...
+    sprintf('pancreas_NEUROG3_induction/outputs/networks_targ0p05_SS50_bS5/Network0p05_10tfsPerGene/prior_atac_Miraldi_q_ChIP_bias10_maxComb/GSEA/prior_atac_Miraldi_q_ChIP_bias10_maxComb_cut01_%dhpiSet_Praw0p1_dir_wCut0p0_minSet5/%dhpiSet_fdr100_up_adjp.txt',cond_time,cond_time),...
     {sprintf('%dhpi up',cond_time); sprintf('%dhpi down',cond_time)};
     ... Annotation 2: TFs core due to negative edges
     -1,'negEdgeCore',....
-    sprintf('pancreas_NEUROG3_induction/outputs/networks_targ0p05_SS50_bS5/Network0p05_10tfsPerGene/prior_atac_Miraldi_q_ChIP_bias10_maxComb/GSEA/prior_atac_Miraldi_q_ChIP_bias10_maxComb_cut01_%dhpiSet_Praw0p1_dir_wCut0p0_minSet5/%dhpiSet_praw10_down_adjp.txt',cond_time,cond_time),...
+    sprintf('pancreas_NEUROG3_induction/outputs/networks_targ0p05_SS50_bS5/Network0p05_10tfsPerGene/prior_atac_Miraldi_q_ChIP_bias10_maxComb/GSEA/prior_atac_Miraldi_q_ChIP_bias10_maxComb_cut01_%dhpiSet_Praw0p1_dir_wCut0p0_minSet5/%dhpiSet_fdr100_down_adjp.txt',cond_time,cond_time),...
     {sprintf('%dhpi up',cond_time); sprintf('%dhpi down',cond_time)};
     };
 
 %% 1. Calculate normalized overlap in target genes between TFs
 tfTargMin = 20;     % only consider TFs with at least this number of targets
 targTfMin = 1;      % only consider targets with at least this number of TFs
-fdrCut = 1e-5;         % cutoff for TF pair inclusion
+fdrCut = 5e-2;         % cutoff for TF pair inclusion
 edgeOpt = 'comb';   % can be set to one of three options:
 %   'pos' -- limits analysis to positive regulatory interactions
 %   'neg' -- limits anlaysis to negative regulatory interactions
@@ -93,7 +101,8 @@ outDir = fullfile(outDirBase,fileName,strjoin({'zOverlaps',...
     ['fdr' num2str(100*fdrCut)],...
     ['tfMin' num2str(tfTargMin)],...
     ['targMin' num2str(targTfMin)],...
-    [num2str(cond_time) 'hpi']},'_'));
+    [num2str(cond_time) 'hpi'],...
+    [num2str(cond_gene)]},'_'));
 
 disp(' 1. Calculate z-scored overlap TF regulatory interactions')
 tfPairMat = calc_zscoredTfTfOverlaps(inputNetwork,tfTargMin,...
@@ -110,7 +119,7 @@ eval_clusterSolns_tfTfOverlap(tfPairMat, outDir, saveFig2)
 %% 3. Cluster and visualize full matrix of z-scored, normalized overlaps,
 % optionally overlay with gene expression and core TF annotations
 datasetName = strjoin({'pancreas','8h',[num2str(cond_time) 'hpi']},'_');
-desClusts = 50;     % desired number of clusters (clustering is 
+desClusts = 20;     % desired number of clusters (clustering is 
 %   hierarchical, so affects visualization only)
 titleInf = [datasetName ', ' edgeOpt '-edge , FDR: ' num2str(100*fdrCut)...
     '%, min TF, target: ' num2str(tfTargMin) ', ' num2str(targTfMin)...
@@ -133,8 +142,8 @@ vis_allTfTfOverlaps(datasetName, tfPairMat, desClusts, titleInf,...
 % and size of the cluster (see Miraldi et al. 2019. Genome Research.)
 
 saveFig4 = 1;       % save figures? 1 --> yes, 0 --> no
-axisFontSize4 = 4;  % heatmap fontsize
-topN = 15;          % number of top-ranking TF-TF clusters for heatmap viz
+axisFontSize4 = 6.5;  % heatmap fontsize
+topN = desClusts;          % number of top-ranking TF-TF clusters for heatmap viz
 fullFigOutDir4 = fullfile(outDir,['Top' num2str(topN) '_Figs_clust' num2str(desClusts)]);
 
 disp('4. Cluster and visualize "Top N" TF-TF overlaps')

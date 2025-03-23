@@ -43,8 +43,10 @@ cond_time = 24;
 
 % "All" TFs with enriched targets in DE genes + all its targets
 % "DE" TFs with enriched targets in DE genes + only its targets that are DE genes
+% "All_ChIP" timepoint ChIP integrated (not all timepoint) TFs with enriched targets in DE genes + all its targets
+% "DE_ChIP" timepoint ChIP integrated (not all timepoint) TFs with enriched targets in DE genes + only its targets that are DE genes
 % "DE_id_subset" If existed, TFs with enriched targets in DE genes + only its targets that are DE genes and in gene set of interest
-cond_gene = 'DE';
+cond_gene = 'All';
 
 % info for each GSEA network analysis is represented as a 4-column cell:
 % 1. GSEA output folder format (with GENESETplaceholder for geneset database), 

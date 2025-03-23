@@ -13,9 +13,9 @@ setwd('/Users/user/Desktop/big-data_analysis/NGS_XZ/NGS/mLASSO-StARS/modeling/in
 #================== INPUTS ===================
 
 # GRN file
-maxcomb.path <- 'outputs/networks_targ0p05_SS50_bS5/Network0p05_6tfsPerGene/prior_atac_Miraldi_q_ChIP_bias10_maxComb'
+maxcomb.path <- 'outputs/networks_targ0p05_SS50_bS5/Network0p05_6tfsPerGene/prior_atac_Miraldi_q_ChIP_x10_bias10_maxComb'
 maxcomb.par <- basename(maxcomb.path)
-file_grn <- paste0(maxcomb.path,'/prior_atac_Miraldi_q_ChIP_bias10_maxComb_sp.tsv')
+file_grn <- paste0(maxcomb.path,'/prior_atac_Miraldi_q_ChIP_x10_bias10_maxComb_sp.tsv')
 time.cond.list <- list(24,48,72,96) 
 
 # FDR cutoff

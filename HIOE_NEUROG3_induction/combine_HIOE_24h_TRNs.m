@@ -13,13 +13,17 @@ addpath(fullfile(currDir,'glmnet'))
 addpath(fullfile(currDir,'customMatlabFxns'))
 
 %% parameters
-combinedNetTsv = 'HIOE_NEUROG3_induction/outputs/networks_targ0p05_SS50_bS5/Network0p05_6tfsPerGene/prior_atac_Miraldi_q_ChIP_bias10_maxComb_sp.tsv';
 
-combineOpt = 'max';
+meanEdgesPerGene = 6;
 
-meanEdgesPerGene = 15;
+combine_list = {'max','mean'};
+for combine_ind = 1:length(combine_list) 
+    combineOpt = combine_list{combine_ind};
 
-nets2combine = {'HIOE_NEUROG3_induction/outputs/networks_targ0p05_SS50_bS5/Network0p05_6tfsPerGene/prior_atac_Miraldi_q_ChIP_bias10.mat';
-                'HIOE_NEUROG3_induction/outputs/networks_targ0p05_SS50_bS5/Network0p05_6tfsPerGene/prior_atac_Miraldi_q_ChIP_bias10_TFmRNA.mat'};
+    combinedNetTsv = sprintf('HIOE_NEUROG3_induction/outputs/networks_targ0p05_SS50_bS5/Network0p05_%dtfsPerGene/prior_atac_Miraldi_q_ChIP_x10_bias10_%sComb_sp.tsv',6,combineOpt);
 
-combineTRNs(combinedNetTsv,combineOpt,meanEdgesPerGene,nets2combine)
+    nets2combine = {sprintf('HIOE_NEUROG3_induction/outputs/networks_targ0p05_SS50_bS5/Network0p05_%dtfsPerGene/prior_atac_Miraldi_q_ChIP_x10_bias10.mat', 6);
+                    sprintf('HIOE_NEUROG3_induction/outputs/networks_targ0p05_SS50_bS5/Network0p05_%dtfsPerGene/prior_atac_Miraldi_q_ChIP_x10_bias10_TFmRNA.mat', 6)};
+
+    combineTRNs(combinedNetTsv,combineOpt,meanEdgesPerGene,nets2combine)
+end

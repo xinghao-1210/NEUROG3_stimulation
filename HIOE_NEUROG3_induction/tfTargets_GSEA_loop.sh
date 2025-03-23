@@ -20,7 +20,9 @@ do
 	# Network files (NOTE: for signed-analysis of TF targets, we work with TRNs where edges
 	# have been filtered based on partial correlation, e.g., as in filter_TRNs_by_pcorr.sh
 	declare -a networkFiles=("outputs/networks_targ0p05_SS50_bS5/Network0p05_6tfsPerGene/prior_atac_Miraldi_q_ChIP_bias10_maxComb/${cond_time}hpi_Cores/Core_prior_atac_Miraldi_q_ChIP_bias10_maxComb_fdr5_HIOE_NEUROG3_${cond_time}hpiSet_All_sp.tsv" \
-													 "outputs/networks_targ0p05_SS50_bS5/Network0p05_6tfsPerGene/prior_atac_Miraldi_q_ChIP_bias10_maxComb/${cond_time}hpi_Cores/Core_prior_atac_Miraldi_q_ChIP_bias10_maxComb_fdr5_HIOE_NEUROG3_${cond_time}hpiSet_DE_sp.tsv")
+													 "outputs/networks_targ0p05_SS50_bS5/Network0p05_6tfsPerGene/prior_atac_Miraldi_q_ChIP_bias10_maxComb/${cond_time}hpi_Cores/Core_prior_atac_Miraldi_q_ChIP_bias10_maxComb_fdr5_HIOE_NEUROG3_${cond_time}hpiSet_DE_sp.tsv"\
+													 "outputs/networks_targ0p05_SS50_bS5/Network0p05_6tfsPerGene/prior_atac_Miraldi_q_ChIP_bias10_maxComb/${cond_time}hpi_Cores/Core_prior_atac_Miraldi_q_ChIP_bias10_maxComb_fdr5_HIOE_NEUROG3_${cond_time}hpiSet_All_ChIP_sp.tsv" \
+												 	 "outputs/networks_targ0p05_SS50_bS5/Network0p05_6tfsPerGene/prior_atac_Miraldi_q_ChIP_bias10_maxComb/${cond_time}hpi_Cores/Core_prior_atac_Miraldi_q_ChIP_bias10_maxComb_fdr5_HIOE_NEUROG3_${cond_time}hpiSet_DE_ChIP_sp.tsv")
 
 	scriptHome="../infLassoStARS"
 

@@ -43,7 +43,7 @@ importGeneExpGeneLists(normGeneExprFile,targGeneFile,potRegFile,...
 
 %% 2. Given a prior of TF-gene interactions, estimate transcription factor 
 % activities (TFAs) using prior-based TFA and TF mRNA levels
-priorName = 'prior_atac_Miraldi_q_ChIP';
+priorName = 'prior_atac_Miraldi_q_ChIP_x10';
 priorFile = ['pancreas_NEUROG3_induction/inputs/priors/' priorName '.tsv']; % ATAC-seq prior
 edgeSS = 50;
 minTargets = 3;
@@ -54,14 +54,15 @@ disp('2. integratePrior_estTFA.m')
 integratePrior_estTFA(geneExprMat,priorFile,edgeSS,...
      minTargets, tfaMat)
 
+
 %% 3. Calculate network instabilities using bStARS
 
 lambdaBias = .1;    % penatly on prior TF-gene matrix
 % options are '_TFmRNA' or ''
-tfaOpt = ''; 
+tfaOpt = '';
 totSS = 50;
 targetInstability = .05;
-lambdaMin = 1e-5;  % set lambda range to get instability0.05 (hard to reach with small samples ~0.04) in the range
+lambdaMin = 1e-7;  % set lambda range to get instability0.05 (hard to reach with small samples ~0.04) in the range
 lambdaMax = 1;
 extensionLimit = 1;
 totLogLambdaSteps = 25; % will have this many steps per log10 within bStARS lambda range

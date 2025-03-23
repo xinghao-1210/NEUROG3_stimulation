@@ -27,3 +27,13 @@ for t in [8,24,48,72]:
                                   'gene_set':['|'.join(geneset_up),'|'.join(geneset_down)]})
     
     geneset_df.to_csv(f'./inputs/geneSets/{geneset_condition}.txt',sep=' ', index=False, header=False)
+
+# Construct leaveout list
+gene_exp='inputs/geneExpression/RNAseq_24_DESeq2_VSDcounts.txt'
+gene_exp_list=pd.read_table(gene_exp,sep='\t', index_col=0).columns.tolist()
+
+for cond in [0,100]:
+    for t in [24,48,72,96]:
+        leveout=[x for x in gene_exp_list if ('_'+str(cond)+'_' in x) and (str(t)+'hpi' in x)]
+        with open (f'inputs/leaveOutLists/{cond}-{t}hpi.txt','w') as f:
+            f.write('\n'.join(leveout))

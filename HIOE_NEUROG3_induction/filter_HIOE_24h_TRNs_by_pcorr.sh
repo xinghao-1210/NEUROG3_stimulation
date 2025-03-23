@@ -19,7 +19,7 @@ inputDir="outputs/networks_targ0p05_SS50_bS5/Network0p05_6tfsPerGene"
 # 		Zhx1      D16Ertd472e     1       50.31   0.312   rgb(220,157,158)        2       None
 # 		Zkscan1   Il17f   -0.99738        50.28   -2.8E-01        rgb(157,181,227)        1.9994  2,2
 # 		Irf3      Il17f   -0.99477        50.26   -2.6E-01        rgb(160,182,227)        1.999   2,2
-declare -a inFileNames=("prior_atac_Miraldi_q_ChIP_bias10_maxComb_sp.tsv")
+declare -a inFileNames=("prior_atac_Miraldi_q_ChIP_x10_bias10_maxComb_sp.tsv")
 
 outputDirBase=${inputDir}
 

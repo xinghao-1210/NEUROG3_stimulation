@@ -1,0 +1,60 @@
+degree power law fit
+alpha=5.847942515624202,sigma=1.2956671374457671,xmin=296.0
+power_law vs. lognormal_positive: R=-0.046257511296024845, p=0.8291769885837753
+
+in_degree power law fit
+alpha=12.195543485115122,sigma=0.765311597181735,xmin=11.0
+power_law vs. lognormal_positive: R=1.3120592721846733, p=0.006952475058351464
+
+out_degree power law fit
+alpha=5.50992281254731,sigma=1.205327571810568,xmin=284.0
+power_law vs. lognormal_positive: R=-0.12377096518996566, p=0.7291892887146162
+
+degree power law fit
+alpha=5.847942515624202,sigma=1.2956671374457671,xmin=296.0
+power_law vs. lognormal_positive: R=-0.046257511296024845, p=0.8291769885837753
+
+in_degree power law fit
+alpha=12.195543485115122,sigma=0.765311597181735,xmin=11.0
+power_law vs. lognormal_positive: R=1.3120592721846733, p=0.006952475058351464
+
+out_degree power law fit
+alpha=5.50992281254731,sigma=1.205327571810568,xmin=284.0
+power_law vs. lognormal_positive: R=-0.12377096518996566, p=0.7291892887146162
+
+degree power law fit
+alpha=5.847942515624202,sigma=1.2956671374457671,xmin=296.0
+power_law vs. lognormal_positive: R=-0.046257511296024845, p=0.8291769885837753
+
+in_degree power law fit
+alpha=12.195543485115122,sigma=0.765311597181735,xmin=11.0
+power_law vs. lognormal_positive: R=1.3120592721846733, p=0.006952475058351464
+
+out_degree power law fit
+alpha=5.50992281254731,sigma=1.205327571810568,xmin=284.0
+power_law vs. lognormal_positive: R=-0.12377096518996566, p=0.7291892887146162
+
+degree power law fit
+alpha=3.2858776265864367,sigma=0.09633825587382579,xmin=5.0
+power_law vs. lognormal_positive: R=89.49415117228111, p=6.066834323356617e-26
+
+in_degree power law fit
+alpha=41.57643340822022,sigma=9.30887224819682,xmin=10.0
+power_law vs. lognormal_positive: R=0.32102772983891237, p=0.0029907079855308115
+
+out_degree power law fit
+alpha=4.828260009014623,sigma=1.1051234733662358,xmin=194.0
+power_law vs. lognormal_positive: R=-0.07822254455179767, p=0.8223676791590515
+
+degree power law fit
+alpha=3.2858776265864367,sigma=0.09633825587382579,xmin=5.0
+power_law vs. lognormal_positive: R=89.49415117228111, p=6.066834323356617e-26
+
+in_degree power law fit
+alpha=41.57643340822022,sigma=9.30887224819682,xmin=10.0
+power_law vs. lognormal_positive: R=0.32102772983891237, p=0.0029907079855308115
+
+out_degree power law fit
+alpha=4.828260009014623,sigma=1.1051234733662358,xmin=194.0
+power_law vs. lognormal_positive: R=-0.07822254455179767, p=0.8223676791590515
+

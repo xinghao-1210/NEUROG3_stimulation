@@ -1,0 +1,12 @@
+degree power law fit
+alpha=3.2945127087774986,sigma=0.1294868432775282,xmin=3.0
+power_law vs. lognormal_positive: R=72.90191292875114, p=8.763011054791917e-33
+
+in_degree power law fit
+alpha=31.963696675113468,sigma=5.851588648113411,xmin=6.0
+power_law vs. lognormal_positive: R=0.9874820498442363, p=0.021625129388720955
+
+out_degree power law fit
+alpha=3.5034354746650895,sigma=0.6463842601121834,xmin=56.0
+power_law vs. lognormal_positive: R=-0.3569074921993547, p=0.5658622609040281
+

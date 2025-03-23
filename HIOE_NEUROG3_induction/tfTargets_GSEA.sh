@@ -14,13 +14,14 @@ for time in 24 48 72 96
 do
 	geneSetAbbrev="${time}hpiSet"
 	geneSetFile="inputs/geneSets/${time}hpiSet.txt"
-	backgroundGeneFile="inputs/geneSets/background_set_de025.txt"
+	#backgroundGeneFile="inputs/geneSets/background_set_de0.25.txt"
+	backgroundGeneFile="inputs/geneSets/background_set.txt"
 
 	# Network files (NOTE: for signed-analysis of TF targets, we work with TRNs where edges
 	# have been filtered based on partial correlation, e.g., as in filter_TRNs_by_pcorr.sh
 	# network file should be in sparse format (header, then col 1 = TF, col 2 = target gene,
 	# col 3 = signed interaction). File name expected to end in "_sp.tsv")
-	declare -a networkFiles=("outputs/networks_targ0p05_SS50_bS5/Network0p05_6tfsPerGene/prior_atac_Miraldi_q_ChIP_bias10_maxComb/prior_atac_Miraldi_q_ChIP_bias10_maxComb_cut01_sp.tsv")
+	declare -a networkFiles=("outputs/networks_targ0p05_SS50_bS5/Network0p05_6tfsPerGene/prior_atac_Miraldi_q_ChIP_x10_bias10_maxComb/prior_atac_Miraldi_q_ChIP_x10_bias10_maxComb_cut01_sp.tsv")
 
 	scriptHome="../infLassoStARS"
 

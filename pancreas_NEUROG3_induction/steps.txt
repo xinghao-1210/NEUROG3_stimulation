@@ -13,20 +13,37 @@ A-TF(potRegs_names): selected TFs expressed in RNA-seq (default: same as core_TF
 genesForTFA: RNA-seq vst normalization (default:  same as RNA-seq vst normalization)
 X-fit(targetGene_Names): deg/interested genes
 
+ATAC_peaks
+cat */*.bed/.narrowPeak | bedtools sort | bedtools merge > ATAC_peaks.bed
+bedtools intersect -v -a ATAC_peaks.bed -b hg19-blacklist.v2.bed > ATAC_peaks_filtered.bed
+
+TF-ChIP_annotation
+
 0 workflow-tfa: determine lambda range to get instability=0.05
-1. r2Pred: determine meanEdgesPerGene
+0.5 genesetConstruct (python 3): 	-> Make geneSet file/leaveOut from DESeq2 DEGs **geneset output 
+						FILE NAME cannot contain "_"
+
+1. r2Pred: determine meanEdgesPerGene, leaveout sample names should be same in geneExpression file
 2.1 workflow-tfa: tfaOpt='' model with TFA, with determined meanEdgesPerGene
 2.2 workflow-mRNA: tfaOpt='_TFmRNA' model with mRNA, with determined meanEdgesPerGene
 3. combine: combine TFA and mRNA models by ranked TF-gene
 4. filter_by_pcorr (python 2.7 bash): modify inputDir and inFileNames
 					-> Threshhold positive and negative edges in the TRN
-5. genesetConstruct (python 3): 
-					-> Make geneSet file from DESeq2 DEGs **geneset output 
-						FILE NAME cannot contain "_"
-6. tfTargets_GSEA (python 2.7 bash): modify geneSetAbbrev, geneSetFile, backgroundGeneFile and networkFiles
-7. core: deg/interested genes on specific condition/time point
-8. aveGeneExpMatrix_subset_4viz: group samples based on RNA-seq condition for heatmap fig in next step
-9. tfModules: TF-TF module heat map and generate file for core network
-10. tfTargets_GSEA_loop: TF targets GSEA
-11. visGSEAenrich_heatmaps_comb : TF targets GSEA heatmap
-12. jp_gene_viz_TF_module.ipynb (Jupiter notebook on py2): TF-TF module network visualization
+
+5. tfTargets_GSEA (python 2.7 bash) for each condition/timepoint: modify geneSetAbbrev, geneSetFile, backgroundGeneFile (0.25de) and networkFiles
+6. vis_coreAnalysis/coreTF: deg/interested genes on specific condition/time point
+7.0. tfTargets_GSEA (python 2.7 bash) for each condition/timepoint: modify geneSetAbbrev, geneSetFile, backgroundGeneFile (all) and networkFiles
+7.1 core_analysis_create_core_GRN.R generate core TRN by subsetting combined TRN with condition/time DE geneSet
+7.2 core_priorsSparse2Table.sh (python 2.7 bash) use prior-parsing code to generate a prior matrix from the sparse network (_sp)
+*7.3 timepoint_ChIP_integration (python 3):	-> integrate time point ChIP data into TRN
+*7.4 core_priorsTable2Sparse.sh (python 2.7 bash) generate a sparse network (_sp) from the timepoints integrated TF-target table (_ChIP)
+8. jp_gene_viz_TF_module.ipynb (Jupiter notebook on py2): TF-TF module network visualization, feed with combined/condition/time TRN
+9. aveGeneExpMatrix_subset_4viz: group samples based on RNA-seq condition for heatmap fig in next step
+10. tfModules: TF-TF module heat map and generate file for core network
+11. gmt2GSEAset.py (python3): convert GSEA downloaded get annotation to geneses file for tfTargets_GSEA_loop  and visGSEAenrich
+12. tfTargets_GSEA_loop: TF targets GSEA
+13. visGSEAenrich_heatmaps_comb : TF targets GSEA heatmap
+
+14. graph_analysis
+15. graph_analysis_dnx
+16. graphite (c++ py2)

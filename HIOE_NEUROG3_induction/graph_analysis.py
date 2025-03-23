@@ -42,14 +42,14 @@ except FileExistsError:
 for cond_time in [24,48,72,96]:
     for de_only in [True,False]:
         if de_only:
-            out_path_general=f'{nx_path}/allde'
+            out_path_general0=f'{nx_path}/de'
         else:
-            out_path_general=f'{nx_path}/de'
+            out_path_general0=f'{nx_path}/all'
         for tf_only in [True,False]:
             if tf_only:
-                out_path=out_path_general+'_tfs'
+                out_path_general=out_path_general0+'_tfs'
             else:
-                out_path=out_path_general
+                out_path_general=out_path_general0
             # set classification
             for classification in [None, 'active', 'repress']:
 
@@ -58,18 +58,21 @@ for cond_time in [24,48,72,96]:
                 else:
                     c=classification
 
-                out_path=out_path+f'/{cond_time}hpi {c}/'
+                out_path=out_path_general+f'/{cond_time}hpi {c}'
                 print(out_path)
+                print(out_path_general)
                 try:
                     os.makedirs(out_path)
                 except FileExistsError:
                     pass
-                
+
                 print(f'\n\n*****{cond_time}hpi {de_only} {tf_only} {c}*****\n\n')
-                
+
                 G_tf=network_construct(cond_time=cond_time)
                 G_tf=network_filter(G_tf,classification=classification,de_only=de_only,tf_only=tf_only)
                 network_graphml_save(G_tf, path=f'{out_path}/graphml_{cond_time}_{classification}.txt')
+                print(f'{out_path}/graphml_{cond_time}_{classification}.txt')
+                
                 recip_assort_dict=reciprocity_assortivity(G_tf,nodes=None,weight='weight')
             #try:
                 cliques,node_clique_max,node_clique=clique_counts(G=G_tf,top_n=50)
@@ -83,7 +86,7 @@ for cond_time in [24,48,72,96]:
                     print(nx.NetworkXError,f'\n\n====={cond_time}hpi {de_only} {tf_only} {c} is not weakly connected=====\n\n')
                     for weak_c in nx.weakly_connected_components(G_tf):
                         print(weak_c)
-                
+
                 power_law_dict=plot_degree_dist(G_tf,classification=classification)
                 density,w_connected_comp,s_connected_comp,max_s_connected_nodes,C,C0=directed_connectivity_comp(G_tf,top_n=50,min_s_connected_nodes=3,classification=classification)
             # except:
@@ -102,32 +105,53 @@ out_path=''
 
 def network_construct(cond_time):
     # find DE not included in meta data from both D9 and D12
-    core_trn = pd.read_table(f'outputs/networks_targ0p05_SS50_bS5/Network0p05_6tfsPerGene/prior_atac_Miraldi_q_ChIP_bias10_maxComb/{cond_time}hpi_Cores/Core_prior_atac_Miraldi_q_ChIP_bias10_maxComb_fdr5_HIOE_NEUROG3_{cond_time}hpiSet_All_sp.tsv',sep='\t')
+    try:
+        core_trn = pd.read_table(f'outputs/networks_targ0p05_SS50_bS5/Network0p05_6tfsPerGene/prior_atac_Miraldi_q_ChIP_bias10_maxComb/{cond_time}hpi_Cores/Core_prior_atac_Miraldi_q_ChIP_bias10_maxComb_fdr5_HIOE_NEUROG3_{cond_time}hpiSet_All_ChIP_sp.tsv',sep='\t')
+        comb_cut01 = pd.read_table(f'outputs/networks_targ0p05_SS50_bS5/Network0p05_6tfsPerGene/prior_atac_Miraldi_q_ChIP_bias10_maxComb/prior_atac_Miraldi_q_ChIP_bias10_maxComb_cut01_sp.tsv')
+        comb_cut01.columns =[x.replace('-','.') for x in  comb_cut01.columns]
+        chip_list = [x.split('_')[0] for x in os.listdir('inputs/priors/ChIP_annotated') if f'{cond_time}hpi' in x] 
+        # construct graph from dataframe
+        # analyze graph from networkx
+        df_G = core_trn.copy()
+        df_G = df_G.merge(comb_cut01, left_on=['TF','Target'], right_on=['TF','Target'], how='outer')
+        df_G = df_G[(df_G.TF.isin(chip_list) | df_G.stroke.notnull()) & df_G.weight.notnull()]
+
+        df_G.loc[df_G.notnull().all(axis=1),'stroke'] = df_G.loc[df_G.notnull().all(axis=1)].stroke.str.slice(start=4, stop=-1).str.split(',').apply(lambda x: tuple([int(i, 10)/255 for i in x]))
+        df_G.loc[df_G.isnull().any(axis=1),'stroke'] = df_G.loc[df_G.isnull().any(axis=1)].apply(lambda x: 'm' if x.weight>0 else 'b', axis=1)
+        df_G.loc[df_G.isnull().any(axis=1),'stroke.width'] = df_G.loc[df_G.isnull().any(axis=1)].weight.apply(abs)
+        df_G['SignedQuantile']=df_G.weight/max(df_G.weight)
+        df_G['weight'] = df_G.weight.apply(lambda x: int(abs(x*10)) if abs(x)>=0.1 else 1)
+        df_G.fillna('None', inplace=True)
+
+    except FileNotFoundError:
+        core_trn = pd.read_table(f'outputs/networks_targ0p05_SS50_bS5/Network0p05_6tfsPerGene/prior_atac_Miraldi_q_ChIP_bias10_maxComb/{cond_time}hpi_Cores/Core_prior_atac_Miraldi_q_ChIP_bias10_maxComb_fdr5_HIOE_NEUROG3_{cond_time}hpiSet_All_sp.tsv',sep='\t')
+        # construct graph from dataframe
+        # analyze graph from networkx
+        df_G = core_trn.copy()
+        df_G['stroke'] = df_G.stroke.str.slice(start=4, stop=-1).str.split(',').apply(lambda x: tuple([int(i, 10)/255 for i in x]))
+        df_G['weight'] = df_G.combPCorr.apply(lambda x: int(abs(x*10)) if abs(x)>=0.1 else 1)
+
     gene_list = set(core_trn.TF.tolist() + core_trn.Target.tolist())
-    
+
     # dict of gene vsd
-    rna_vsd = pd.read_table(f'inputs/geneExpression/RNAseq_24_DESeq2_VSDcounts.txt',sep='\t', index_col=0, usecols=[0]+list(range(cond_time//24+1,cond_time//24+6+1)))
+    rna_vsd = pd.read_table(f'inputs/geneExpression/RNAseq_24_DESeq2_VSDcounts.txt',sep='\t', index_col=0, usecols=[0]+list(range(cond_time//4-5,cond_time//4+1)))
     rna_vsd['vsd0'] = rna_vsd.iloc[:,0:3].mean(axis=1)
     rna_vsd['vsd100'] = rna_vsd.iloc[:,3:6].mean(axis=1)
-    vsd_dict = {k:{'0_vsd':rna_vsd[rna_vsd.index==k].vsd0.values[0], '100_vsd':rna_vsd[rna_vsd.index==k].vsd100.values[0]} if k in rna_vsd.index else 0 for k in gene_list}
-    
+    vsd0_dict = {k:rna_vsd[rna_vsd.index==k].vsd0.values[0] if k in rna_vsd.index else 0 for k in gene_list}
+    vsd100_dict = {k:rna_vsd[rna_vsd.index==k].vsd100.values[0] if k in rna_vsd.index else 0 for k in gene_list}
+
     # dict of gene lfc 100vs0
-    rna_de = pd.read_table(f'/Users/user/Desktop/big-data_analysis/NGS_XZ/NGS/XZ_07-21-28-08-05-2020_RNA-seq_HIOE/Counts_TPM_mat/analysis/results/WT_HIOE_{cond_time}hpi_filtered.txt',sep='\t', index_col=0)
+    rna_de = pd.read_table(f'/Users/user/Desktop/big-data_analysis/NGS_XZ/NGS/XZ_07-21-28-08-05-2020_RNA-seq_HIOE/Counts_TPM_mat/analysis/results/WT_HIOE_{cond_time}hpi.txt',sep='\t', index_col=0).fillna(0)
     #rna_de = pd.read_table(f'inputs/geneExpression/results/WT_HIOE_{cond_time}hpi_filtered.txt',sep='\t', index_col=0)
     lfc_dict = {k:rna_de[rna_de.index==k].log2FoldChange.values[0] if k in rna_de.index else 0 for k in gene_list}
     padj_dict = {k:rna_de[rna_de.index==k].padj.values[0] if k in rna_de.index else 1 for k in gene_list}
-    
-    # construct graph from dataframe
-    # analyze graph from networkx
-    df_G = core_trn
-    df_G.stroke = df_G.stroke.str.slice(start=4, stop=-1).str.split(',').apply(lambda x: tuple([int(i, 10)/255 for i in x]))
-    df_G.weight = df_G.combPCorr.apply(abs)
-    
+
     # dataframe to graph
     G_tf=nx.from_pandas_edgelist(df_G,source='TF', target='Target', edge_attr=True, create_using=nx.DiGraph())
-    
+
     # nodes attribute from pandas
-    nx.set_node_attributes(G_tf, vsd_dict, f'tpm_{cond_time}hpi')
+    nx.set_node_attributes(G_tf, vsd0_dict, f'vsd0_{cond_time}hpi')
+    nx.set_node_attributes(G_tf, vsd100_dict, f'vsd100_{cond_time}hpi')
     nx.set_node_attributes(G_tf, lfc_dict, f'lfc_{cond_time}hpi')
     nx.set_node_attributes(G_tf, padj_dict, f'padj_{cond_time}hpi')
     return G_tf
@@ -159,7 +183,7 @@ def network_filter(G,classification,de_only=de_only,tf_only=tf_only):
             if (attr['SignedQuantile']>0 and classification!='active') or (attr['SignedQuantile']<0 and classification!='repress'):
                 H.remove_edge(i, j)
                 H.remove_nodes_from(list(nx.isolates(H)))
-                           
+
     for i in sorted(H.nodes()):
         if de_only and ((abs(H.nodes[i][f'lfc_{cond_time}hpi']) <1) or (H.nodes[i][f'padj_{cond_time}hpi'] >= 0.05)):
             H.remove_node(i)
@@ -170,9 +194,11 @@ def network_filter(G,classification,de_only=de_only,tf_only=tf_only):
 
 
 def network_graphml_save(G, path):
+    nx.write_weighted_edgelist(G, path=path.replace('.txt','_weighted_edgelist.txt'))
     nx.write_edgelist(G, path, comments='#', delimiter='\t', data=True, encoding='utf-8')
+    nx.write_gpickle(G, path=path.replace('.txt','.gpickle'))
     return 'Graphml saved!'
-    
+
 
 def clique_counts(G,top_n):
     '''
@@ -209,9 +235,8 @@ def clique_counts(G,top_n):
         for j in clique_dict:
             clique_dict[j].append(np.log1p(collections.Counter([item for sublist in [k for k in cliques if len(k)==i] for item in sublist])[j]))
     clique_df=pd.DataFrame.from_dict(clique_dict,orient='index',columns=list(range(3,max([v for v in node_clique_max.values()])+1)))
-    if clique_df.shape!=(0,0):
-        print(clique_df.describe())
-    
+
+    if clique_dict_top!={}:
         plt.rcParams.update(plt.rcParamsDefault)
         fig = plt.figure(figsize=(10,5))
         fig.suptitle(f'total_cliques_counts {top_n}', fontsize=15)
@@ -224,7 +249,10 @@ def clique_counts(G,top_n):
             plt.gca().get_xticklabels()[list(clique_dict_top).index(j)].set_color("blue")
         plt.show()
         fig.savefig(f'{out_path}/TF_clique_counts_total_top{top_n}_{cond_time}_{classification}.png',bbox_inches='tight', dpi=300)
-    
+
+    if clique_df.shape!=(0,0):
+        print(clique_df.describe())
+
         de_up_dict={key:'up' for key in [x for x in clique_dict if (G.nodes[x][f'lfc_{cond_time}hpi']>=1) and (G.nodes[x][f'padj_{cond_time}hpi'] < 0.05)]}
         de_down_dict={key:'down' for key in [x for x in clique_dict if (G.nodes[x][f'lfc_{cond_time}hpi']<=-1) and (G.nodes[x][f'padj_{cond_time}hpi'] < 0.05)]}
         de_updown_dict={**de_up_dict,**de_down_dict}
@@ -353,7 +381,6 @@ def reciprocity_assortivity(G,nodes,weight):
     reciprocity : int/dict: Key: nodes, Value: reciprocity
     degree_assort : int/dict: Key: nodes, Value: assortivity
     '''
-
     reciprocity=nx.reciprocity(G, nodes=nodes)
     degree_assort=nx.degree_assortativity_coefficient(G, x='out', y='in', weight=weight, nodes=nodes)
     print(f'reciprocity:{reciprocity}\ndegree_assortivity_coeff:{degree_assort}\n')
@@ -362,7 +389,7 @@ def reciprocity_assortivity(G,nodes,weight):
     for i in G.nodes(data=True)[list(G.nodes())[0]]:
         if 'tpm' in i:
             pass
-        else: 
+        else:
             attr_assort=nx.attribute_assortativity_coefficient(G, attribute=i, nodes=nodes)
             print(f'Attribute assortativity for {i}: {attr_assort}')
             recip_assort_dict[i]=attr_assort
@@ -470,7 +497,7 @@ def graph_centrality(G,top_n,function,weight,classification,save_plot):
             functions=[function]
     centrality_dict={}
     for i in functions:
-        
+
         if i in [nx.degree_centrality,nx.in_degree_centrality,nx.out_degree_centrality,nx.closeness_centrality]:
             centrality=i(G)
         elif i in [nx.betweenness_centrality,nx.edge_betweenness_centrality]:
@@ -489,7 +516,7 @@ def graph_centrality(G,top_n,function,weight,classification,save_plot):
                     centrality=nx.katz_centrality_numpy(G, weight=weight)
                 elif i==nx.pagerank:
                     centrality=nx.pagerank_numpy(G, weight=weight)
-            
+
         plt.rcParams.update(plt.rcParamsDefault)
         if i==nx.hits:
             centrality_hits={}
@@ -594,9 +621,9 @@ def draw_network(G, p, classification, file_prefix, save):
                 label[i]=i
 
     # specific node shape based on DE by spliting node group
-    up_nodes = [n for n,lfc in nx.get_node_attributes(G_tf,f'lfc_{cond_time}hpi').items() if lfc>=1]
-    down_nodes = [n for n,lfc in nx.get_node_attributes(G_tf,f'lfc_{cond_time}hpi').items() if lfc<=-1]
-    nan_nodes = [n for n,lfc in nx.get_node_attributes(G_tf,f'lfc_{cond_time}hpi').items() if -1<lfc<1]
+    up_nodes = [n for n,lfc in nx.get_node_attributes(H,f'lfc_{cond_time}hpi').items() if lfc>=1]
+    down_nodes = [n for n,lfc in nx.get_node_attributes(H,f'lfc_{cond_time}hpi').items() if lfc<=-1]
+    nan_nodes = [n for n,lfc in nx.get_node_attributes(H,f'lfc_{cond_time}hpi').items() if -1<lfc<1]
 
     if p==False:
         partition_community={'Not computed'}
@@ -611,14 +638,21 @@ def draw_network(G, p, classification, file_prefix, save):
         # greedy method based louvian alg for modularity maximization and community detection
         partition=community.best_partition(nx.DiGraph.to_undirected(H),weight='stroke.width',random_state=42)
         positions=community_layout(H, partition)
-        partition_community,enr_df=gsea_partition_enrich(H,partition=partition,save_plot=True)
+        try:
+            partition_community,enr_df=gsea_partition_enrich(H,partition=partition,save_plot=True)
+            partition_group=pd.Series(partition_community,name='partition_group').sort_index().sort_values(kind = 'mergesort')
+            partition_group.to_csv(f'{out_path}/partition_comunity_{cond_time}_{classification}.txt',sep='\t')
+        except:
+            print('Connection aborted no GSEA analysis')
+            partition_community=None
         node_color=list(partition.values())
         if file_prefix==None:
             file_prefix='partitioned'
         else:
             file_prefix='partitioned_'+file_prefix
-        pd.Series(partition,name='genes').to_csv(f'{out_path}/partition_nodes_{cond_time}_{classification}.txt',sep='\t')
-        pd.Series(partition_community,name='genes').to_csv(f'{out_path}/partition_comunity_{cond_time}_{classification}.txt',sep='\t')
+        partition_group=pd.Series(partition,name='partition_group').sort_index().sort_values(kind = 'mergesort')
+        partition_group.to_csv(f'{out_path}/partition_nodes_{cond_time}_{classification}.txt',sep='\t')
+
     plt.figure(figsize=(20,20))
     #draws nodes
     nx.draw_networkx_nodes(H,positions,node_color=node_color,nodelist=nodelist,
@@ -626,13 +660,13 @@ def draw_network(G, p, classification, file_prefix, save):
                            node_size=node_sizes,alpha=0.8)
     #Styling for labels
     #nx.draw_networkx_labels(H,positions,label,font_size=5,font_color='k')
-    nx.draw_networkx_labels(H,positions,label_both,font_size=7,font_color='red')
-    nx.draw_networkx_labels(H,positions,label_hub,font_size=7,font_color='magenta')
-    nx.draw_networkx_labels(H,positions,label_auth,font_size=7,font_color='navy')
+    nx.draw_networkx_labels(H,positions,label_both,font_size=7,font_color='maroon')
+    nx.draw_networkx_labels(H,positions,label_hub,font_size=7,font_color='green')
+    nx.draw_networkx_labels(H,positions,label_auth,font_size=7,font_color='c')
     #draws the edges
-    nx.draw_networkx_edges(H, positions, nodelist=up_nodes, edge_list=selected_edges,style='solid', width=[x/5 for x in selected_edges_weight], edge_color=edge_colors,node_color='lightblue')
-    nx.draw_networkx_edges(H, positions, nodelist=down_nodes, edge_list=selected_edges,style='solid', width=[x/5 for x in selected_edges_weight], edge_color=edge_colors,node_color='plum', node_shape='d')
-    nx.draw_networkx_edges(H, positions, nodelist=nan_nodes, edge_list=selected_edges,style='solid', width=[x/5 for x in selected_edges_weight], edge_color=edge_colors,node_color='darkgrey', node_shape='s')
+    nx.draw_networkx_edges(H, positions, nodelist=up_nodes, edgelist=selected_edges,style='solid', width=[x/5 for x in selected_edges_weight], edge_color=edge_colors)
+    nx.draw_networkx_edges(H, positions, nodelist=down_nodes, edgelist=selected_edges,style='solid', width=[x/5 for x in selected_edges_weight], edge_color=edge_colors)
+    nx.draw_networkx_edges(H, positions, nodelist=nan_nodes, edgelist=selected_edges,style='solid', width=[x/5 for x in selected_edges_weight], edge_color=edge_colors)
 
     if save==True:
         if file_prefix==None:
@@ -683,7 +717,7 @@ def directed_connectivity_comp(G,top_n,min_s_connected_nodes,classification):
         max_s_connected_nodes=[(x,y) for x,y in sorted(C.nodes(data=True),key=lambda item: len(item[1]['members']), reverse=True)][:min_s_connected_index+1]
         print(f'Weakly_connected_components:{w_connected_comp}',f'\nstronly_connected_components:{s_connected_comp}')
         print(f'max_strongly_connected_nodes:\n{max_s_connected_nodes}',min_s_connected_index,len(max_s_connected_nodes[0][1]['members']))
-    
+
         C0=G.copy()
         for i in G.nodes():
             if i not in max_s_connected_nodes[0][1]['members']:
@@ -733,7 +767,10 @@ def plot_degree_dist(G,classification):
         plt.xlabel(f'{label}')
         plt.ylabel('log p(k)')
         plt.subplot(1, 2, 2)
-        fit.plot_pdf(marker='.',color='b')
+        try:
+            fit.plot_pdf(marker='.',color='b')
+        except ValueError:
+            pass
         plt.title('power law distribution')
         plt.xlabel(f'{label}')
         plt.ylabel('log p(k)')
@@ -894,9 +931,9 @@ def gsea_partition_enrich(G,partition,save_plot):
                              outdir=f'{out_path}/Enrichr_{cond_time}_{classification}',
                              cutoff=0.05,
                              figsize=(8,6),top_term=10,format='png')
-            # if save_plot==True:
-            #     gp.dotplot(enr.res2d, cutoff=0.05, top_term=10,title=f'community_{k}_gsea',
-            #                ofname=f'{out_path}/Enrichr_{cond_time}_{classification}/{gs}_community_{k}_gsea.png',dpi=300)
+            if save_plot==True:
+                gp.dotplot(enr.res2d, cutoff=0.05, top_term=10,title=f'community_{k}_gsea',
+                           ofname=f'{out_path}/Enrichr_{cond_time}_{classification}/{gs}_community_{k}_gsea.png',dpi=300)
     return (partition_nodes,enr.res2d)
 
 
@@ -945,3 +982,86 @@ def maxflow_mincut(G,source,target,weight,classification):
     return (maxflow_mincut['independent_paths']['edge_independent_path'],maxflow_mincut['independent_paths']['node_independent_path'],maxflow_mincut['min_cut'])
 edge_independent_path,node_independent_path,min_cut=maxflow_mincut(G=G_tf,source='ETV1',target='PDX1',weight='capacity', classification=classification)
 
+
+'''
+algebraic connectivity
+'''
+alg_connectivity=nx.algebraic_connectivity(nx.DiGraph.to_undirected(G), weight='capacity')
+alg_connec_vector=nx.fiedler_vector(nx.DiGraph.to_undirected(G), weight='capacity')
+spectral_ordering=nx.spectral_ordering(nx.DiGraph.to_undirected(G), weight='capacity')
+
+'''
+betweenness based community, with dendrogram output for customized community
+'''
+between_community = nx.community.girvan_newman(G)
+
+
+g=nx.clustering(G)
+G.edges['ETV1','STAT3']
+G=G_tf
+
+
+'''
+# k-components
+# a maximal subset of vertices such that no pair of vertices can be disconnected from each other by removing less than k vertices.
+'''
+# only support undirect without selfloop, remove selfloop
+G_tf_ud.remove_edges_from(nx.selfloop_edges(G_tf_ud))
+k_comp=apxa.k_components(G_tf_ud)
+k_comp_list={k:v[0] for k,v in sorted(k_comp.items(),key=lambda item: item[0], reverse=False)}
+
+
+
+def bipartite_centrality(G,top_n):
+    for i in [nx.degree_centrality,nx.closeness_centrality,nx.betweenness_centrality,
+              nx.eigenvector_centrality,nx.katz_centrality,nx.pagerank,nx.hits]:
+        if i in [nx.degree_centrality,nx.in_degree_centrality,nx.out_degree_centrality,nx.closeness_centrality,nx.betweenness_centrality]:
+            centrality=i(G)
+        else:
+            centrality=i(G,max_iter=50000)
+        if i==nx.hits:
+            global centrality
+            centrality={}
+            centrality['hubs']={k: v for k, v in sorted(centrality[0].items(),key=lambda item: item[1], reverse=True)[:top_n]}
+            centrality['authorities']={k: v for k, v in sorted(centrality[1].items(),key=lambda item: item[1], reverse=True)[:top_n]}
+
+            fig = plt.figure(figsize=(10,5))
+            fig.suptitle(f'{str(i).split(" ")[1]}_hubs top_{top_n} of {str(G)}', fontsize=15)
+            plt.bar(centrality['hubs'].keys(), centrality['hubs'].values(), color='b')
+            plt.gca().get_xticklabels()[1].set
+            plt.xticks(fontsize=7.5,rotation=75)
+            plt.show()
+            print(f'{str(i).split(" ")[1]}_hubs of {str(G)}:\n {centrality["hubs"]}\n')
+
+            fig = plt.figure(figsize=(10,5))
+            fig.suptitle(f'{str(i).split(" ")[1]}_authorities top_{top_n} of {str(G)}', fontsize=15)
+            plt.bar(centrality['authorities'].keys(), centrality['authorities'].values(), color='b')
+            plt.gca().get_xticklabels()[1].set
+            plt.xticks(fontsize=7.5,rotation=75)
+            plt.show()
+            print(f'{str(i).split(" ")[1]}_authorities of {str(G)}:\n {centrality["authorities"]}\n')
+        else:
+            centrality={k: v for k, v in sorted(centrality.items(),key=lambda item: item[1], reverse=True)[:top_n]}
+            fig = plt.figure(figsize=(10,5))
+            fig.suptitle(f'{str(i).split(" ")[1]} top_{top_n} of {str(G)}', fontsize=15)
+            plt.bar(centrality.keys(), centrality.values(), color='b')
+            plt.gca().get_xticklabels()[1].set
+            plt.xticks(fontsize=7.5,rotation=75)
+            plt.show()
+            print(f'{str(i).split(" ")[1]} of {str(G)}:\n {centrality}\n')
+bipartite_centrality(B_project_group,top_n=50)
+
+
+
+G_tf.nodes['PAX4']
+G_tf['NEUROG3']['PAX4']
+edge_8 = [(u,v) for u,v,e in G_tf.edges(data=True) if 8 in e]
+a=nx.adjacency_matrix(G_tf,)
+a.todense()
+
+
+import timeit
+start = timeit.default_timer()
+simple_cycle,selected_cycle=directed_cycle_search(G_tf,full_list=True,comp=None,length=None,time=None, classification=None)
+stop = timeit.default_timer()
+print('Time: ', stop - start)

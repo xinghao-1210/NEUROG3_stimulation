@@ -14,7 +14,7 @@ addpath(fullfile('','customMatlabFxns'));
 
 %% Parameters
 topNtfSets = Inf;   % keep the top N most significant sets per TF (set to Inf to include all sets per TFs)
-FDR_cutoff = .01;    % cutoff for inclusion of enriched sets in heatmap
+FDR_cutoff = .05;    % cutoff for inclusion of enriched sets in heatmap
 filterTfs = 1;      % filter TFs according to FDR_cutoff?, 1 --> on; 0 --> off
 padjSat = .001;     % heatmap will be saturated for p-values more significant than this
 
@@ -26,10 +26,10 @@ fontSize = 7;           % font size for axes labels (TF and set names)
 clim = -log10(padjSat); % saturation scale for the heatmap (-log10 p-values)
 
 %% Gene sets database info
-geneSetDBs = {'PathwayCommons';'Kegg'; 'MAPP';'Signatures_MSigDB'};
+geneSetDBs = {'CP_all'; 'Go_all'};
     % gene set databases must exactly match setNames in
     % tfTarget_GSEA_loop.sh
-geneSetNickNames = {'P','K','MP','MSigDB'};
+geneSetNickNames = {'CP','GO'};
     % OPTIONAL, user-defined gene set database nicknames (e.g., can specify
     % "K" for "Kegg database", so that "Cytokine Signaling" appears as 
     % "Cytokine Signaling (K)" in the heatmaps' gene-set labels; order must
@@ -40,6 +40,14 @@ totGeneSets = size(geneSetDBs,1);
 %% Networks
 % set cond_time for specific condition
 cond_time = 8;
+
+% "All" TFs with enriched targets in DE genes + all its targets
+% "DE" TFs with enriched targets in DE genes + only its targets that are DE genes
+% "All_ChIP" timepoint ChIP integrated (not all timepoint) TFs with enriched targets in DE genes + all its targets
+% "DE_ChIP" timepoint ChIP integrated (not all timepoint) TFs with enriched targets in DE genes + only its targets that are DE genes
+% "DE_id_subset" If existed, TFs with enriched targets in DE genes + only its targets that are DE genes and in gene set of interest
+cond_gene = 'All';
+
 % info for each GSEA network analysis is represented as a 4-column cell:
 % 1. GSEA output folder format (with GENESETplaceholder for geneset database), 
 %       (points to results from tfTarget_GSEA_loop.sh or tfTargets_GSEA.sh
@@ -49,10 +57,10 @@ cond_time = 8;
 % 4. output directory
 networkInfs = {... 
     {... % GSEA directory format "GENESETplaceholder" for geneset database name
-    ['pancreas_NEUROG3_induction/outputs/networks_targ0p05_SS50_bS5/Network0p05_10tfsPerGene/prior_atac_Miraldi_q_ChIP_bias10_maxComb/GSEA/prior_atac_Miraldi_q_ChIP_bias10_maxComb_GENESETplaceholder_Praw0p1_dir_wCut0p0_minSet5']; 
+    sprintf('pancreas_NEUROG3_induction/outputs/networks_targ0p05_SS50_bS5/Network0p05_10tfsPerGene/prior_atac_Miraldi_q_ChIP_bias10_maxComb/%dhpi_Cores/Core_prior_atac_Miraldi_q_ChIP_bias10_maxComb_fdr5_Pancreas_NEUROG3_%dhpiSet_%s/GSEA/Core_prior_atac_Miraldi_q_ChIP_bias10_maxComb_fdr5_Pancreas_NEUROG3_%dhpiSet_%s_GENESETplaceholder_Praw0p1_dir_wCut0p0_minSet5',cond_time,cond_time,cond_gene,cond_time,cond_gene); 
     '';         % .txt file list to limit TFs in heatmap, can be left as an empty string
     '_allTFs';  
-    'pancreas_NEUROG3_induction/outputs/networks_targ0p05_SS50_bS5/Network0p05_10tfsPerGene/prior_atac_Miraldi_q_ChIP_bias10_maxComb/GSEA/heatmaps'};
+    sprintf('pancreas_NEUROG3_induction/outputs/networks_targ0p05_SS50_bS5/Network0p05_10tfsPerGene/prior_atac_Miraldi_q_ChIP_bias10_maxComb/%dhpi_Cores/Core_prior_atac_Miraldi_q_ChIP_bias10_maxComb_fdr5_Pancreas_NEUROG3_%dhpiSet_%s/GSEAenrich',cond_time,cond_time,cond_gene)};
     };
 totNetworks = size(networkInfs,1);
 
@@ -238,7 +246,7 @@ for nind = 1:totNetworks
 
     %% generate a heatmap
     figure,
-    subplot(5,5,[4:5,8:10, 13: 15, 19:20])
+    subplot(5,5,[4:5,8:10, 13:15, 19:20])
     imagesc(allEnriches)
     colormap redblue
     hold on

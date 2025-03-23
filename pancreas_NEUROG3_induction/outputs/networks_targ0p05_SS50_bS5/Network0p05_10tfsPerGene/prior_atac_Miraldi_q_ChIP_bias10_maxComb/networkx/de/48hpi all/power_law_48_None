@@ -1,0 +1,48 @@
+degree power law fit
+alpha=2.9770923585306646,sigma=0.10024256178497364,xmin=5.0
+power_law vs. lognormal_positive: R=52.620320198770486, p=1.7722866389315954e-39
+
+in_degree power law fit
+alpha=19.518655657196277,sigma=5.8561131081102555,xmin=10.0
+power_law vs. lognormal_positive: R=0.20328237203730193, p=0.07296905063997834
+
+out_degree power law fit
+alpha=6.453510981646167,sigma=1.4575121177377992,xmin=101.0
+power_law vs. lognormal_positive: R=-0.5691546301714321, p=0.5213842132756645
+
+degree power law fit
+alpha=2.9770923585306646,sigma=0.10024256178497364,xmin=5.0
+power_law vs. lognormal_positive: R=52.620320198770486, p=1.7722866389315954e-39
+
+in_degree power law fit
+alpha=19.518655657196277,sigma=5.8561131081102555,xmin=10.0
+power_law vs. lognormal_positive: R=0.20328237203730193, p=0.07296905063997834
+
+out_degree power law fit
+alpha=6.453510981646167,sigma=1.4575121177377992,xmin=101.0
+power_law vs. lognormal_positive: R=-0.5691546301714321, p=0.5213842132756645
+
+degree power law fit
+alpha=2.9770923585306646,sigma=0.10024256178497364,xmin=5.0
+power_law vs. lognormal_positive: R=52.620320198770486, p=1.7722866389315954e-39
+
+in_degree power law fit
+alpha=19.518655657196277,sigma=5.8561131081102555,xmin=10.0
+power_law vs. lognormal_positive: R=0.20328237203730193, p=0.07296905063997834
+
+out_degree power law fit
+alpha=6.453510981646167,sigma=1.4575121177377992,xmin=101.0
+power_law vs. lognormal_positive: R=-0.5691546301714321, p=0.5213842132756645
+
+degree power law fit
+alpha=2.767505583784245,sigma=0.08950112431192514,xmin=4.0
+power_law vs. lognormal_positive: R=44.91148499890573, p=7.050951176926462e-25
+
+in_degree power law fit
+alpha=8.796909950520776,sigma=0.5701665240218274,xmin=6.0
+power_law vs. lognormal_positive: R=3.1062724691020747, p=0.0006219444595828775
+
+out_degree power law fit
+alpha=4.120481536869953,sigma=0.7568279399590909,xmin=69.0
+power_law vs. lognormal_positive: R=-0.08789465525997109, p=0.7565216969652855
+
